@@ -1,4 +1,4 @@
-Ftp backup tool.
+#Ftp backup tool.
 
 
 This tool allows you to backup specified directories (that are not subfolders of each other)
