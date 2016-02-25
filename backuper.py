@@ -14,7 +14,9 @@ def parse_config(config):
     """
     Parses configuration with sections [FTP NAME].
     :param config: ConfigParser's object.
-    :return: Array of servers' dicts {sect_name, hostname, username, password}.
+    :return: Tuple of:
+     - Array of dir's dicts {sect_name, path, mask, period}.
+     - Array of servers' dicts {sect_name, hostname, username, password}.
     """
     servers = []
     dirs = []
@@ -41,5 +43,8 @@ servers_dict = parse_result[1]
 
 print servers_dict
 print dirs_dict
-# TODO go through list of files or through list of servers, create connection, send data, continue...
+"""
+ TODO go through list of files or through list of servers, create connection,
+ send data (check mask and period), continue...
+"""
 # ftp = FTP(host=hostname, user=username, passwd=password)
