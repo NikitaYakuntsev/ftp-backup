@@ -4,9 +4,9 @@ import os
 from ftplib import FTP
 
 
-def load_configuration():
+def load_configuration(filepath):
     config = ConfigParser.RawConfigParser()
-    config.read(common.CONF_FILE_PATH)
+    config.read(filepath)
     return config
 
 
@@ -34,7 +34,7 @@ def parse_config(config):
     return dirs, servers
 
 
-conf = load_configuration()
+conf = load_configuration(common.CONF_FILE_PATH)
 parse_result = parse_config(conf)
 dirs_dict = parse_result[0]
 servers_dict = parse_result[1]
