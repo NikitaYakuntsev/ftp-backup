@@ -9,10 +9,26 @@ def load_configuration():
     return config
 
 
+def parse_ftps(config):
+    """
+    Parses configuration.
+    :param config: ConfigParser's object.
+    :return: Array of servers' dicts {sect_name, hostname, username, password}.
+    """
+    result = []
+    for sect in config.sections():
+        if str(sect).startswith(common.FTP_SECT):
+            srv = {"name": sect,
+                   "hostname": config.get(sect, common.HOST),
+                   "username": config.get(sect, common.USER),
+                   "password": config.get(sect, common.PASS)}
+            result.append(srv)
+    return result
+
+
 conf = load_configuration()
-hostname = conf.get(common.FTP_SECT, common.HOST)
-username = conf.get(common.FTP_SECT, common.USER)
-password = conf.get(common.FTP_SECT, common.PASS)
+servers = parse_ftps(conf)
 
-ftp = FTP(host=hostname, user=username, passwd=password)
+print servers
 
+# ftp = FTP(host=hostname, user=username, passwd=password)
