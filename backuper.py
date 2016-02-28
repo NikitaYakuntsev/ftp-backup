@@ -36,6 +36,17 @@ def parse_config(config):
     return dirs, servers
 
 
+def get_file_list(directories):
+    for dr in directories:
+        prepare_file_list(dr[common.DIR_PATH], dr[common.DIR_MASK], dr[common.DIR_PERIOD_DAYS])
+
+
+def prepare_file_list(path, mask, period):
+    for root, dirs, files in os.walk(path):
+        for name in files:
+            print os.path.join(root, name)
+
+
 conf = load_configuration(common.CONF_FILE_PATH)
 parse_result = parse_config(conf)
 dirs_dict = parse_result[0]
@@ -43,8 +54,10 @@ servers_dict = parse_result[1]
 
 print servers_dict
 print dirs_dict
+
 """
  TODO go through list of files or through list of servers, create connection,
  send data (check mask and period), continue...
 """
 # ftp = FTP(host=hostname, user=username, passwd=password)
+get_file_list(dirs_dict)
