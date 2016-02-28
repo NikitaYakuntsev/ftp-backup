@@ -42,9 +42,16 @@ def get_file_list(directories):
 
 
 def prepare_file_list(path, mask, period):
-    for root, dirs, files in os.walk(path):
+    norm = os.path.normpath(path)
+    rem_dir = os.path.normpath(os.path.basename(norm))
+    print rem_dir
+
+    for root, dirs, files in os.walk(norm):
         for name in files:
-            print os.path.join(root, name)
+            local_file = os.path.join(root, name)
+            file_path = os.path.join(root[len(norm):], name)
+            rem_file = "{}{}".format(rem_dir, file_path)
+            print "local = {} \nrem_dir = {}\nfile = {}\nrem_file = {}\n\n".format(local_file, rem_dir, file_path, rem_file)
 
 
 conf = load_configuration(common.CONF_FILE_PATH)
