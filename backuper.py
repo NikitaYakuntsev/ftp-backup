@@ -4,6 +4,7 @@ import common
 import os
 from os import path
 from fnmatch import fnmatch
+import time
 from ftplib import FTP
 
 
@@ -72,18 +73,19 @@ def prepare_file_list(filepath, mask, period):
 
                 local_file = path.join(root, name)
                 file_path = path.join(root[len(norm_path):], name)
-                rem_file = "{}{}".format(rem_dir, file_path)
-                print "local = {} \nrem_dir = {}\nfile = {}\nrem_file = {}\n\n".format(local_file, rem_dir, file_path,
-                                                                                       rem_file)
+                #rem_file = "{}{}".format(rem_dir, file_path)
+                #print "local = {} \nrem_dir = {}\nfile = {}\nrem_file = {}\n\n".format(local_file, rem_dir, file_path,
+                #                                                                      rem_file)
 
-                mod_time = path.getmtime(local_file)
-                if (mod_time >= LAST_SYNC_TIME) and (common.now() - mod_time <= period * common.DAY) and (
-                fnmatch(local_file, mask)):
-                    # rem_file = rem_dir + file_path
-                    fl = {"local_file_path": local_file,
-                          "remote_dir_path": rem_dir,
-                          "file_path": file_path}
-                    result.append(fl)
+                if path.exists(local_file):
+                    mod_time = path.getmtime(local_file)
+                    if (mod_time >= LAST_SYNC_TIME) and (common.now() - mod_time <= period * common.DAY) \
+                            and (fnmatch(local_file, mask)):
+                        # rem_file = rem_dir + file_path
+                        fl = {"local_file_path": local_file,
+                              "remote_dir_path": rem_dir,
+                              "file_path": file_path}
+                        result.append(fl)
 
     return result
 
@@ -113,6 +115,8 @@ print dirs_dict
 
 # ftp = FTP(host=hostname, user=username, passwd=password)
 
+before = time.time()
 print get_file_list(dirs_dict)
+print "Spent: {} seconds".format(time.time() - before)
 
 save_sync_time()
