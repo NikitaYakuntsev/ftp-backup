@@ -7,6 +7,9 @@ from fnmatch import fnmatch
 import time
 from ftplib import FTP
 
+from ftputils import chdir, go_up
+
+MAX_DEPTH = 0
 
 def load_configuration(filepath):
     config = ConfigParser.RawConfigParser()
@@ -59,6 +62,7 @@ def prepare_file_list(filepath, mask, period):
     :param mask: pattern for file name.
     :param period: number of days file shouldn't be older than
     """
+    global MAX_DEPTH
     result = []
 
     norm_path = path.normpath(filepath)
@@ -86,6 +90,9 @@ def prepare_file_list(filepath, mask, period):
                               "remote_dir_path": rem_dir,
                               "file_path": file_path}
                         result.append(fl)
+                        depth = file_path.count(path.sep)
+                        if depth > MAX_DEPTH:
+                            MAX_DEPTH = depth
 
     return result
 
@@ -103,6 +110,31 @@ def get_file_list(directories):
     return result
 
 
+def load_files_to_server(file_list, host, user, passw):
+    ftp = FTP(host=host, user=user, passwd=passw)
+    for fl in file_list:
+
+        local_file = fl["local_file_path"]
+        if path.exists(local_file):
+            f = open(local_file, 'rb')
+            remote = "{}{}".format(fl["remote_dir_path"], fl["file_path"])
+            chdir(remote, ftp)
+            print "remote = {}".format(remote)
+            ftp.storbinary("STOR {}".format(remote.split(path.sep)[-1]), f)
+            f.close()
+            go_up(local_file.count(path.sep), ftp)
+
+    ftp.close()
+
+def load_files_to_servers(file_list, server_list):
+    if len(file_list) > 0:
+        for srv in server_list:
+            host = srv[common.FTP_HOST]
+            usr = srv[common.FTP_USER]
+            passwd = srv[common.FTP_PASS]
+            load_files_to_server(file_list, host, usr, passwd)
+
+
 LAST_SYNC_TIME = get_last_sync_time()
 
 conf = load_configuration(common.CONF_FILE_PATH)
@@ -113,10 +145,12 @@ servers_dict = parse_result[1]
 print servers_dict
 print dirs_dict
 
-# ftp = FTP(host=hostname, user=username, passwd=password)
 
 before = time.time()
-print get_file_list(dirs_dict)
+files = get_file_list(dirs_dict)
 print "Spent: {} seconds".format(time.time() - before)
+print files
+
+load_files_to_servers(files, servers_dict)
 
 save_sync_time()
