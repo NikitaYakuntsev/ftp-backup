@@ -3,8 +3,9 @@
 
 This tool allows you to backup specified directories (that are not subfolders of each other)
 to multiple FTP servers as archives in 2 ways:
--[x] archive all folder where changes were made
--[x] archive only changed files
+
+- archive all folder where changes were made
+- archive only changed files
 
 
 There could be multiple FTP sections in config file,
