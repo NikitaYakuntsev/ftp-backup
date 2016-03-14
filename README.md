@@ -34,9 +34,8 @@ archive_only_changed = True
 ftp_path = 160314_Test
 ```
 
-Here path is absolute location of directory,
-mask specifies what files should be saved,
-period is a number of days before current date when changes of file should be tracked,
-ftp_lifetime is a number of days shows how long should file be stored on ftp. not in use now
-archive_only_changed flag if true than only changed files will be archived, all specified folder otherwise
-ftp_path is a name of remote folder on ftp server.
+Here <b>path</b> is absolute location of directory,
+<b>mask</b> specifies what files should be saved,
+<b>period</b> is a number of days before current date when changes of file should be tracked,
+<b>ftp_lifetime</b> is a number of days shows how long should file be stored on ftp. not in use now,
+<b>archive_only_changed</b> flag if true than only changed files will be archived, all specified folder otherwise, <b>ftp_path</b> is a name of remote folder on ftp server.
