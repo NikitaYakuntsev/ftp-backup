@@ -1,7 +1,7 @@
 def chdir(ftp_path, ftp_conn):
     dirs = [d for d in ftp_path.split('/') if d != '']
+    dirs.pop()
     for p in dirs:
-        print(p)
         check_dir(p, ftp_conn)
 
 
@@ -22,3 +22,4 @@ def check_dir(directory, ftp_conn):
 def go_up(depth, ftp_conn):
     while depth >= 0:
         ftp_conn.cwd("..")
+        depth -= 1

@@ -3,6 +3,13 @@ host = 192.168.1.13
 username = ftp1
 password = ftp1
 
+[DIR #4]
+local_path = /home/nikitayakuntsev/.local
+mask = *.*
+period = 9
+ftp_lifetime = 7
+archive_only_changed = False
+ftp_path = 160314_Test
 
 [DIR #5]
 local_path = /home/nikitayakuntsev
