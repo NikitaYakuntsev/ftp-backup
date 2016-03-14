@@ -7,6 +7,8 @@ to multiple FTP servers as archives in 2 ways:
 - archive all folder where changes were made
 - archive only changed files
 
+Usage: <b>python backuper.py</b>
+
 
 There could be multiple FTP sections in config file,
 but names of sections should start from word "FTP" and should be unique.
