@@ -9,7 +9,6 @@ from ftplib import FTP
 
 from ftputils import chdir, go_up
 
-MAX_DEPTH = 0
 
 def load_configuration(filepath):
     config = ConfigParser.RawConfigParser()
@@ -49,7 +48,10 @@ def parse_config(config):
             dr = {"name": sect,
                   common.DIR_PATH: config.get(sect, common.DIR_PATH),
                   common.DIR_MASK: config.get(sect, common.DIR_MASK),
-                  common.DIR_PERIOD_DAYS: config.get(sect, common.DIR_PERIOD_DAYS)}
+                  common.DIR_PERIOD_DAYS: config.get(sect, common.DIR_PERIOD_DAYS),
+                  common.DIR_FTP_PATH: config.get(sect, common.DIR_FTP_PATH),
+                  common.DIR_ONLY_CHANGED: config.get(sect, common.DIR_ONLY_CHANGED),
+                  common.DIR_FTP_LIFETIME: config.get(sect, common.DIR_FTP_LIFETIME)}
             dirs.append(dr)
     return dirs, servers
 
@@ -62,7 +64,6 @@ def prepare_file_list(filepath, mask, period):
     :param mask: pattern for file name.
     :param period: number of days file shouldn't be older than
     """
-    global MAX_DEPTH
     result = []
 
     norm_path = path.normpath(filepath)
@@ -90,9 +91,7 @@ def prepare_file_list(filepath, mask, period):
                               "remote_dir_path": rem_dir,
                               "file_path": file_path}
                         result.append(fl)
-                        depth = file_path.count(path.sep)
-                        if depth > MAX_DEPTH:
-                            MAX_DEPTH = depth
+
 
     return result
 
@@ -105,10 +104,24 @@ def get_file_list(directories):
     result = []
     for dr in directories:
         preres = prepare_file_list(dr[common.DIR_PATH], dr[common.DIR_MASK], dr[common.DIR_PERIOD_DAYS])
-        if preres is not None:
-            result += preres
+        name = ""
+        if preres is not None and len(preres) > 0:
+            if dr[common.DIR_ONLY_CHANGED] == True:
+                name = create_archive(preres)
+            else:
+                name = create_archive(dr[common.DIR_PATH])
+            result.append(name)
+
     return result
 
+
+def create_archive(object):
+    name = ""
+    if isinstance(object, list):
+        name = "list"
+    else:
+        name = "path" #add to archive this path
+    return name
 
 def load_files_to_server(file_list, host, user, passw):
     ftp = FTP(host=host, user=user, passwd=passw)
@@ -151,6 +164,6 @@ files = get_file_list(dirs_dict)
 print "Spent: {} seconds".format(time.time() - before)
 print files
 
-load_files_to_servers(files, servers_dict)
+#load_files_to_servers(files, servers_dict)
 
 save_sync_time()
