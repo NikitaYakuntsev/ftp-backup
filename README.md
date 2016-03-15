@@ -2,7 +2,12 @@
 
 
 This tool allows you to backup specified directories (that are not subfolders of each other)
-to multiple FTP servers.
+to multiple FTP servers as archives in 2 ways:
+
+- archive all folder where changes were made
+- archive only changed files
+
+Usage: <b>python backuper.py</b>
 
 
 There could be multiple FTP sections in config file,
@@ -25,14 +30,14 @@ Example:
 [DIR name]
 path = /home/user/path/2
 mask = *.*
-period = 14
+period = 9
+ftp_lifetime = 7
+archive_only_changed = True
+ftp_path = 160314_Test
 ```
 
-Here path is absolute location of directory,
-mask specifies what files should be saved
-and period is a number of days before current date when changes of file should be tracked.
-
-TODO List:
-- [x] parsing config
-- [ ] Email configuration
-- [ ] logging
+Here <b>path</b> is absolute location of directory,
+<b>mask</b> specifies what files should be saved,
+<b>period</b> is a number of days before current date when changes of file should be tracked,
+<b>ftp_lifetime</b> is a number of days shows how long should file be stored on ftp. not in use now,
+<b>archive_only_changed</b> flag if true than only changed files will be archived, all specified folder otherwise, <b>ftp_path</b> is a name of remote folder on ftp server.
