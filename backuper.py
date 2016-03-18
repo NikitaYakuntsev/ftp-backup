@@ -1,4 +1,28 @@
 # coding=utf-8
+"""
+The MIT License (MIT)
+
+Copyright (c) 2016 Nikita Yakuntsev
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"""
+
 import ConfigParser
 import common
 import os
@@ -58,14 +82,15 @@ def parse_config(config):
                   common.DIR_PERIOD_DAYS: config.getint(sect, common.DIR_PERIOD_DAYS),
                   common.DIR_FTP_PATH: config.get(sect, common.DIR_FTP_PATH),
                   common.DIR_ONLY_CHANGED: config.getboolean(sect, common.DIR_ONLY_CHANGED),
-                  common.DIR_FTP_LIFETIME: config.getint(sect, common.DIR_FTP_LIFETIME)}
+                  common.DIR_FTP_LIFETIME: config.getint(sect, common.DIR_FTP_LIFETIME),
+                  common.DIR_DELAY_PERIOD_MINS: config.getint(sect, common.DIR_DELAY_PERIOD_MINS)}
             dirs.append(dr)
     logging.debug(u'Parsed directories: {0}'.format(dirs))
     logging.debug(u'Parsed ftp servers: {0}'.format(servers))
     return dirs, servers
 
 
-def prepare_file_list(filepath, mask, period):
+def prepare_file_list(filepath, mask, period, delay_period):
     """
     Creates list of files from filepath that were modified since last sync but not later than "period" days before today
     and have name with "mask" pattern.
@@ -90,8 +115,10 @@ def prepare_file_list(filepath, mask, period):
 
                 if path.exists(local_file):
                     mod_time = path.getmtime(local_file)
-                    if (mod_time >= LAST_SYNC_TIME) and (common.now() - mod_time <= period * common.DAY) \
-                            and (fnmatch(local_file, mask)):
+                    now = common.now()
+                    if (mod_time >= LAST_SYNC_TIME) and (now - mod_time <= period * common.DAY) \
+                            and (fnmatch(local_file, mask))\
+                            and (now - mod_time >= delay_period * common.MIN ):
                         # TODO optimization: if you have to backup all directory than skip previous check
                         fl = {"local_file_path": local_file,
                               "remote_dir_path": rem_dir,
@@ -108,7 +135,7 @@ def get_file_list(directories):
     """
     result = []
     for dr in directories:
-        preres = prepare_file_list(dr[common.DIR_PATH], dr[common.DIR_MASK], dr[common.DIR_PERIOD_DAYS])
+        preres = prepare_file_list(dr[common.DIR_PATH], dr[common.DIR_MASK], dr[common.DIR_PERIOD_DAYS], dr[common.DIR_DELAY_PERIOD_MINS])
         name = {"name": "",
                 "remote_dir": dr[common.DIR_FTP_PATH]}
         if preres is not None and len(preres) > 0:
